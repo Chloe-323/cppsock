@@ -1,5 +1,5 @@
-#ifndef TCP_H
-#define TCP_H
+#ifndef UDP_H
+#define UDP_H
 #include <iostream>
 #include <string>
 #include <arpa/inet.h>
@@ -9,8 +9,7 @@
 
 using namespace std;
 
-
-class TCPClient {
+class UDPClient{
     private:
         int sock;
         struct sockaddr_in server;
@@ -20,14 +19,15 @@ class TCPClient {
         int port;
         bool connected;
     public:
-        TCPClient(string ip, int port);
-        ~TCPClient();
+        UDPClient(string ip, int port);
+        ~UDPClient();
         bool sock_connect();
         bool sock_send(string msg);
         string sock_receive();
         bool disconnect();
 };
-class TCPServer {
+
+class UDPServer{
     private:
         int sock;
         struct sockaddr_in server;
@@ -35,8 +35,8 @@ class TCPServer {
         int port;
         bool connected;
     public:
-        TCPServer(int port);
-        ~TCPServer();
+        UDPServer(int port);
+        ~UDPServer();
         bool sock_listen();
         bool sock_accept();
         bool sock_send(string msg);
@@ -44,4 +44,4 @@ class TCPServer {
         bool disconnect();
 };
 
-#endif // TCP_H
+#endif // UDP_H

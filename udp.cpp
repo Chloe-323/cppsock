@@ -1,18 +1,17 @@
-#include "tcp.h"
-using namespace std;
+#include "udp.h"
 
-//TESTED WORKING
-TCPClient::TCPClient(string ip, int port){
+//UNTESTED
+UDPClient::UDPClient(string ip, int port){
     this->ip = ip;
     this->port = port;
     this->connected = false;
 }
-TCPClient::~TCPClient(){
+UDPClient::~UDPClient(){
     close(sock);
 }
-bool TCPClient::sock_connect(){
+bool UDPClient::sock_connect(){
     if(this->connected) return true;
-    this->sock = socket(AF_INET, SOCK_STREAM, 0);
+    this->sock = socket(AF_INET, SOCK_DGRAM, 0);
     if(this->sock < 0){
         cout << "Error creating socket" << endl;
         return false;
@@ -27,83 +26,81 @@ bool TCPClient::sock_connect(){
     this->connected = true;
     return true;
 }
-bool TCPClient::sock_send(string msg){
+bool UDPClient::sock_send(string msg){
     if(!this->connected) return false;
-    if(send(this->sock, msg.c_str(), msg.length(), 0) < 0){
+    if(sendto(this->sock, msg.c_str(), msg.length(), 0, (struct sockaddr *)&this->server, sizeof(this->server)) < 0){
         cout << "Error sending message" << endl;
         return false;
     }
     return true;
 }
-string TCPClient::sock_receive(){
+string UDPClient::sock_receive(){
     if(!this->connected) return "";
-    if(recv(this->sock, this->buffer, 1024, 0) < 0){
+    socklen_t server_len = sizeof(this->server);
+    if(recvfrom(this->sock, this->buffer, 1024, 0, (struct sockaddr *)&this->server, &server_len) < 0){
         cout << "Error receiving message" << endl;
         return "";
     }
     return this->buffer;
 }
-bool TCPClient::disconnect(){
+
+bool UDPClient::disconnect(){
     if(!this->connected) return false;
     close(this->sock);
     this->connected = false;
     return true;
 }
-TCPServer::TCPServer(int port){
+
+UDPServer::UDPServer(int port){
     this->port = port;
     this->connected = false;
 }
-TCPServer::~TCPServer(){
+UDPServer::~UDPServer(){
     close(sock);
 }
-bool TCPServer::sock_listen(){
+bool UDPServer::sock_listen(){
     if(this->connected) return true;
-    this->sock = socket(AF_INET, SOCK_STREAM, 0);
+    this->sock = socket(AF_INET, SOCK_DGRAM, 0);
     if(this->sock < 0){
         cout << "Error creating socket" << endl;
         return false;
     }
-    this->server.sin_family = AF_INET;
     this->server.sin_addr.s_addr = INADDR_ANY;
+    this->server.sin_family = AF_INET;
     this->server.sin_port = htons(this->port);
     if(bind(this->sock, (struct sockaddr *)&this->server, sizeof(this->server)) < 0){
         cout << "Error binding socket" << endl;
         return false;
     }
-    if(listen(this->sock, 1) < 0){
-        cout << "Error listening" << endl;
-        return false;
-    }
     this->connected = true;
     return true;
 }
-bool TCPServer::sock_accept(){
+
+bool UDPServer::sock_accept(){
     if(!this->connected) return false;
-    int new_sock = accept(this->sock, (struct sockaddr *)&this->server, (socklen_t*)&this->server);
-    if(new_sock < 0){
-        cout << "Error accepting connection" << endl;
-        return false;
-    }
-    this->sock = new_sock;
     return true;
 }
-bool TCPServer::sock_send(string msg){
+
+bool UDPServer::sock_send(string msg){
     if(!this->connected) return false;
-    if(send(this->sock, msg.c_str(), msg.length(), 0) < 0){
+    if(sendto(this->sock, msg.c_str(), msg.length(), 0, (struct sockaddr *)&this->server, sizeof(this->server)) < 0){
         cout << "Error sending message" << endl;
         return false;
     }
     return true;
 }
-string TCPServer::sock_receive(){
+
+string UDPServer::sock_receive(){
     if(!this->connected) return "";
-    if(recv(this->sock, this->buffer, 1024, 0) < 0){
+    socklen_t server_len = sizeof(this->server);
+    if(recvfrom(this->sock, this->buffer, 1024, 0, (struct sockaddr *)&this->server, &server_len) < 0){
         cout << "Error receiving message" << endl;
         return "";
     }
     return this->buffer;
 }
-bool TCPServer::disconnect(){
+
+bool UDPServer::disconnect(){
     if(!this->connected) return false;
     close(this->sock);
     this->connected = false;
