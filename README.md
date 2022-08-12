@@ -42,4 +42,4 @@ import the desired files into your code:
 * Add Windows functionality (in progress)
 * Add hostname resolution
 * Add SSL support
-* Add wrappers to these classes to make networking related tasks less tedious
+* Add wrappers to these classes to make common networking related tasks less tedious
