@@ -3,15 +3,26 @@ using namespace std;
 
 //TESTED WORKING
 TCPClient::TCPClient(string ip, int port){
+    #ifdef _WIN32
+    if(WSAStartup(MAKEWORD(2,2), &wsaData) != 0){
+        cout << "WSAStartup failed" << endl;
+        exit(1);
+    }
+    //TODO: get raw address
+    #endif
     this->ip = ip;
     this->port = port;
     this->connected = false;
 }
 TCPClient::~TCPClient(){
+    #ifdef __linux__
     close(sock);
+    #endif
 }
 bool TCPClient::sock_connect(){
     if(this->connected) return true;
+
+    #ifdef __linux__
     this->sock = socket(AF_INET, SOCK_STREAM, 0);
     if(this->sock < 0){
         cout << "Error creating socket" << endl;
@@ -25,39 +36,71 @@ bool TCPClient::sock_connect(){
         return false;
     }
     this->connected = true;
+    #endif
+    #ifdef _WIN32
+    sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if(sock == INVALID_SOCKET){
+        cout << "Error creating socket" << endl;
+        return false;
+    }
+
+    #endif
     return true;
 }
 bool TCPClient::sock_send(string msg){
     if(!this->connected) return false;
+    #ifdef __linux__
     if(send(this->sock, msg.c_str(), msg.length(), 0) < 0){
         cout << "Error sending message" << endl;
         return false;
     }
+    #endif
+    #ifdef _WIN32
+
+    #endif
     return true;
 }
 string TCPClient::sock_receive(){
     if(!this->connected) return "";
+    #ifdef __linux__
     if(recv(this->sock, this->buffer, 1024, 0) < 0){
         cout << "Error receiving message" << endl;
         return "";
     }
+    #endif
+    #ifdef _WIN32
+
+    #endif
     return this->buffer;
 }
 bool TCPClient::disconnect(){
     if(!this->connected) return false;
+    #ifdef __linux__
     close(this->sock);
     this->connected = false;
+    #endif
+    #ifdef _WIN32
+
+    #endif
     return true;
 }
+
+
 TCPServer::TCPServer(int port){
     this->port = port;
     this->connected = false;
 }
 TCPServer::~TCPServer(){
+    #ifdef __linux__
     close(sock);
+    #endif
+    #ifdef _WIN32
+
+    #endif
 }
 bool TCPServer::sock_listen(){
     if(this->connected) return true;
+    #ifdef __linux__
     this->sock = socket(AF_INET, SOCK_STREAM, 0);
     if(this->sock < 0){
         cout << "Error creating socket" << endl;
@@ -75,37 +118,61 @@ bool TCPServer::sock_listen(){
         return false;
     }
     this->connected = true;
+    #endif
+    #ifdef _WIN32
+
+    #endif
     return true;
 }
 bool TCPServer::sock_accept(){
     if(!this->connected) return false;
+    #ifdef __linux__
     int new_sock = accept(this->sock, (struct sockaddr *)&this->server, (socklen_t*)&this->server);
     if(new_sock < 0){
         cout << "Error accepting connection" << endl;
         return false;
     }
     this->sock = new_sock;
+    #endif
+    #ifdef _WIN32
+
+    #endif
     return true;
 }
 bool TCPServer::sock_send(string msg){
     if(!this->connected) return false;
+    #ifdef __linux__
     if(send(this->sock, msg.c_str(), msg.length(), 0) < 0){
         cout << "Error sending message" << endl;
         return false;
     }
+    #endif
+    #ifdef _WIN32
+
+    #endif
     return true;
 }
 string TCPServer::sock_receive(){
     if(!this->connected) return "";
+    #ifdef __linux__
     if(recv(this->sock, this->buffer, 1024, 0) < 0){
         cout << "Error receiving message" << endl;
         return "";
     }
+    #endif
+    #ifdef _WIN32
+
+    #endif
     return this->buffer;
 }
 bool TCPServer::disconnect(){
     if(!this->connected) return false;
+    #ifdef __linux__
     close(this->sock);
     this->connected = false;
+    #endif
+    #ifdef _WIN32
+
+    #endif
     return true;
 }
