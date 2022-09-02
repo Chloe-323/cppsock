@@ -44,6 +44,5 @@ Make sure to either add `using namespace cppsock` OR `cppsock::<class/method nam
 
 ## TODO
 * Test UDP functionality
-* Add hostname resolution
 * Add SSL support
 * Add wrappers to these classes to make common networking related tasks less tedious
