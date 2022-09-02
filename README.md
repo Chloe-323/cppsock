@@ -6,6 +6,7 @@ A simple C++ socket and networking library
 import the desired files into your code:
 * `tcp.h` for TCP sockets
 * `udp.h` for UDP sockets (**UNTESTED**)
+
 Make sure to either add `using namespace cppsock` OR `cppsock::<class/method name>`
 
 ## Notes
