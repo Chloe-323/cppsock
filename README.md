@@ -6,7 +6,10 @@ A simple C++ socket and networking library
 import the desired files into your code:
 * `tcp.h` for TCP sockets
 * `udp.h` for UDP sockets (**UNTESTED**)
-* Make sure to either add `using namespace cppsock` OR `cppsock::<class/method name>`
+Make sure to either add `using namespace cppsock` OR `cppsock::<class/method name>`
+
+## Notes
+* When creating a server on Windows, make sure to create it on the heap. For some reason creating it on the stack causes a segfault when trying to write to a variable. You can do this with `TCPServer *server = new TCPServer(port)`, and then accessing the methods with `server->method()` instead of `server.method()`. As far as I can tell this does not happen on Linux.
 
 ## TCP functionality (`tcp.h`)
 ### Client
@@ -40,7 +43,7 @@ import the desired files into your code:
 
 
 ## TODO
-* Test Windows functionality on TCP
+* Test UDP functionality
 * Add Windows UDP functionality
 * Add hostname resolution
 * Add SSL support
