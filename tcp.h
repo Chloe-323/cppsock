@@ -19,53 +19,71 @@
 
 using namespace std;
 
+namespace cppsock{
+#ifdef _WIN32
+    WSADATA wsaData;
+    bool WSAStarted = false;
+    int WSAnumInstances = 0;
+    void WSAManage(){
+        if(WSAnumInstances == 0 && WSAStarted){
+            WSACleanup();
+            WSAStarted = false;
+        }
+        else if(WSAnumInstances > 0 && !WSAStarted){
+            if(WSAStartup(MAKEWORD(2,2), &wsaData) != 0){
+                cout << "WSAStartup failed" << endl;
+                exit(1);
+            }
+            WSAStarted = true;
+        }
+    }
+#endif
 
-class TCPClient {
-    private:
-        #ifdef __linux__
-        int sock;
-        struct sockaddr_in server;
-        #endif
-        #ifdef _WIN32
-        WSADATA wsaData; //TODO: a way to make sure we don't initialize twice with multiple instances?'
-        struct addrinfo *result = NULL;
-        struct addrinfo *ptr = NULL;
-        struct addrinfo hints; //TODO: do we need this?
-        SOCKET sock = INVALID_SOCKET;
-        #endif
-        char buffer[1024];
-        string ip;
-        string hostname;
-        int port;
-        bool connected;
-    public:
-        TCPClient(string ip, int port);
-        ~TCPClient();
-        bool sock_connect();
-        bool sock_send(string msg);
-        string sock_receive();
-        bool disconnect();
-};
-class TCPServer {
-    private:
-        #ifdef __linux__
-        int sock;
-        struct sockaddr_in server;
-        #endif
-        #ifdef _WIN32
+    class TCPClient {
+        private:
+            #ifdef __linux__
+            int sock;
 
-        #endif
-        char buffer[1024];
-        int port;
-        bool connected;
-    public:
-        TCPServer(int port);
-        ~TCPServer();
-        bool sock_listen();
-        bool sock_accept();
-        bool sock_send(string msg);
-        string sock_receive();
-        bool disconnect();
-};
+            #endif
+            #ifdef _WIN32
+            SOCKET sock = INVALID_SOCKET;
+            #endif
+            struct sockaddr_in server;
+            char buffer[1024];
+            string ip;
+            string hostname;
+            int port;
+            bool connected;
+        public:
+            TCPClient(string ip, int port);
+            ~TCPClient();
+            bool sock_connect();
+            bool sock_send(string msg);
+            string sock_receive();
+            bool disconnect();
+    };
+    class TCPServer {
+        private:
+            #ifdef __linux__
+            int sock;
 
+            #endif
+            #ifdef _WIN32
+            WSADATA wsaData;
+            SOCKET sock = INVALID_SOCKET;
+            #endif
+            struct sockaddr_in server;
+            char buffer[1024];
+            int port;
+            bool connected;
+        public:
+            TCPServer(int port);
+            ~TCPServer();
+            bool sock_listen();
+            bool sock_accept();
+            bool sock_send(string msg);
+            string sock_receive();
+            bool disconnect();
+    };
+}
 #endif // TCP_H
