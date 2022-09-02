@@ -1,5 +1,6 @@
 #ifndef TCP_H
 #define TCP_H
+#define BUF_SIZE 1024
 #include <iostream>
 #include <string>
 //if Linux
@@ -37,7 +38,7 @@ namespace cppsock{
             SOCKET sock = INVALID_SOCKET;
             #endif
             struct sockaddr_in server;
-            char buffer[1024];
+            char buffer[BUF_SIZE];
             string ip;
             string hostname;
             int port;
@@ -59,7 +60,7 @@ namespace cppsock{
             SOCKET sock = INVALID_SOCKET;
             #endif
             struct sockaddr_in server;
-            char buffer[1024];
+            char buffer[BUF_SIZE];
             int port = 0;
             bool connected;
         public:

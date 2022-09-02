@@ -10,7 +10,9 @@ using namespace cppsock;
 
 int main(int argc, char *argv[]){
     TCPServer *server = new TCPServer(8889);
+    cout << "Listening on port 8889" << endl;
     server->sock_listen();
+    cout << "Accepting connections" << endl;
     server->sock_accept();
     string msg = server->sock_receive();
     cout << "Received: " << msg << endl;

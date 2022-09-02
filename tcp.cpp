@@ -1,4 +1,5 @@
 #include "tcp.h"
+#define BUF_SIZE 1024
 using namespace std;
 using namespace cppsock;
 
@@ -98,14 +99,18 @@ bool TCPClient::sock_send(string msg){
 }
 string TCPClient::sock_receive(){ //TODO: arbitrary length buffer
     if(!this->connected) return "";
+    //zero out buffer
+    for(int i = 0; i < BUF_SIZE; i++){
+        this->buffer[i] = 0;
+    }
     #ifdef __linux__
-    if(recv(this->sock, this->buffer, 1024, 0) < 0){
+    if(recv(this->sock, this->buffer, BUF_SIZE, 0) < 0){
         cout << "Error receiving message" << endl;
         return "";
     }
     #endif
     #ifdef _WIN32
-    if(recv(sock, buffer, 1024, 0) == SOCKET_ERROR){
+    if(recv(sock, buffer, BUF_SIZE, 0) == SOCKET_ERROR){
         cout << "Error receiving message" << endl;
         return "";
     }
@@ -173,7 +178,7 @@ bool TCPServer::sock_listen(){
     }
     this->server.sin_family = AF_INET;
     this->server.sin_port = htons(this->port);
-    this->server.sin_addr.s_addr = 0;
+    this->server.sin_addr.s_addr = INADDR_ANY;
     if(bind(sock, (struct sockaddr *)&server, sizeof(server)) == SOCKET_ERROR){
         cout << "Error binding socket" << endl;
         return false;
@@ -197,7 +202,7 @@ bool TCPServer::sock_accept(){
     this->sock = new_sock;
     #endif
     #ifdef _WIN32
-    SOCKET other_sock = accept(this->sock, (struct sockaddr *)&server, (socklen_t*)&server);
+    SOCKET other_sock = accept(this->sock, NULL, NULL);
     if(other_sock == INVALID_SOCKET){
         cout << "Error accepting connection: " << WSAGetLastError() << endl;
         return false;
@@ -224,14 +229,18 @@ bool TCPServer::sock_send(string msg){
 }
 string TCPServer::sock_receive(){
     if(!this->connected) return "";
+    //zero out buffer
+    for(int i = 0; i < BUF_SIZE; i++){
+        this->buffer[i] = 0;
+    }
     #ifdef __linux__
-    if(recv(this->sock, this->buffer, 1024, 0) < 0){
+    if(recv(this->sock, this->buffer, BUF_SIZE, 0) < 0){
         cout << "Error receiving message" << endl;
         return "";
     }
     #endif
     #ifdef _WIN32
-    if(recv(sock, buffer, 1024, 0) == SOCKET_ERROR){
+    if(recv(sock, buffer, BUF_SIZE, 0) == SOCKET_ERROR){
         cout << "Error receiving message" << endl;
         return "";
     }
