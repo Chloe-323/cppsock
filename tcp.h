@@ -20,24 +20,12 @@
 using namespace std;
 
 namespace cppsock{
-#ifdef _WIN32
-    WSADATA wsaData;
-    bool WSAStarted = false;
-    int WSAnumInstances = 0;
-    void WSAManage(){
-        if(WSAnumInstances == 0 && WSAStarted){
-            WSACleanup();
-            WSAStarted = false;
-        }
-        else if(WSAnumInstances > 0 && !WSAStarted){
-            if(WSAStartup(MAKEWORD(2,2), &wsaData) != 0){
-                cout << "WSAStartup failed" << endl;
-                exit(1);
-            }
-            WSAStarted = true;
-        }
-    }
-#endif
+    #ifdef _WIN32
+    inline WSADATA wsaData;
+    inline bool WSAStarted = false;
+    inline int WSAnumInstances = 0;
+    void WSAManage();
+    #endif
 
     class TCPClient {
         private:
@@ -66,18 +54,16 @@ namespace cppsock{
         private:
             #ifdef __linux__
             int sock;
-
             #endif
-            #ifdef _WIN32
-            WSADATA wsaData;
+            #ifdef _WIN32            
             SOCKET sock = INVALID_SOCKET;
             #endif
             struct sockaddr_in server;
             char buffer[1024];
-            int port;
+            int port = 0;
             bool connected;
         public:
-            TCPServer(int port);
+            TCPServer(int _port);
             ~TCPServer();
             bool sock_listen();
             bool sock_accept();

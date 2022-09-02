@@ -2,6 +2,25 @@
 using namespace std;
 using namespace cppsock;
 
+//Multiple instances Windows workaround
+#ifdef _WIN32
+void cppsock::WSAManage(){
+    if(WSAnumInstances == 0 && WSAStarted){
+        cout << "WSACleanup" << endl;
+        WSACleanup();
+        WSAStarted = false;
+    }
+    else if(WSAnumInstances > 0 && !WSAStarted){
+        cout << "WSAStartup" << endl;
+        if(WSAStartup(MAKEWORD(2,2), &wsaData) != 0){
+            cout << "WSAStartup failed" << endl;
+            exit(1);
+        }
+        WSAStarted = true;
+    }
+}
+#endif
+
 //TESTED WORKING
 TCPClient::TCPClient(string ip, int port){
     #ifdef _WIN32
@@ -57,6 +76,7 @@ bool TCPClient::sock_connect(){
         cout << "Error connecting to server" << endl;
         return false;
     }
+    this->connected = true;
     #endif
     return true;
 }
@@ -106,13 +126,13 @@ bool TCPClient::disconnect(){
 }
 
 
-TCPServer::TCPServer(int port){
+TCPServer::TCPServer(int _port){
     #ifdef _WIN32
     WSAnumInstances++;
     WSAManage();
     #endif
-    this->port = port;
     this->connected = false;
+    this->port = _port;
 }
 TCPServer::~TCPServer(){
     #ifdef __linux__
@@ -153,12 +173,12 @@ bool TCPServer::sock_listen(){
     }
     this->server.sin_family = AF_INET;
     this->server.sin_port = htons(this->port);
-    this->server.sin_addr.s_addr = INADDR_ANY; //Works on Windows?
+    this->server.sin_addr.s_addr = 0;
     if(bind(sock, (struct sockaddr *)&server, sizeof(server)) == SOCKET_ERROR){
         cout << "Error binding socket" << endl;
         return false;
     }
-    if(listen(sock, 1) == SOCKET_ERROR){ //Only one connection for now
+    if(listen(sock, SOMAXCONN) == SOCKET_ERROR){
         cout << "Error listening" << endl;
         return false;
     }
@@ -177,11 +197,12 @@ bool TCPServer::sock_accept(){
     this->sock = new_sock;
     #endif
     #ifdef _WIN32
-    SOCKET new_sock = accept(sock, (struct sockaddr *)&server, (socklen_t*)&server);
-    if(new_sock == INVALID_SOCKET){
-        cout << "Error accepting connection" << endl;
+    SOCKET other_sock = accept(this->sock, (struct sockaddr *)&server, (socklen_t*)&server);
+    if(other_sock == INVALID_SOCKET){
+        cout << "Error accepting connection: " << WSAGetLastError() << endl;
         return false;
     }
+    this->sock = other_sock;
     #endif
     return true;
 }
