@@ -3,24 +3,6 @@
 using namespace std;
 using namespace cppsock;
 
-//Multiple instances Windows workaround
-#ifdef _WIN32
-void cppsock::WSAManage(){
-    if(WSAnumInstances == 0 && WSAStarted){
-        cout << "WSACleanup" << endl;
-        WSACleanup();
-        WSAStarted = false;
-    }
-    else if(WSAnumInstances > 0 && !WSAStarted){
-        cout << "WSAStartup" << endl;
-        if(WSAStartup(MAKEWORD(2,2), &wsaData) != 0){
-            cout << "WSAStartup failed" << endl;
-            exit(1);
-        }
-        WSAStarted = true;
-    }
-}
-#endif
 
 //TESTED WORKING
 TCPClient::TCPClient(string ip, int port){

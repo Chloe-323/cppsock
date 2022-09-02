@@ -17,6 +17,7 @@ int main(int argc, char *argv[]){
     string msg = server->sock_receive();
     cout << "Received: " << msg << endl;
     server->sock_send(msg);
+    cout << "Sent: " << msg << endl;
     server->disconnect();
     delete server;
     return 0;

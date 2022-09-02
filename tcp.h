@@ -14,6 +14,7 @@
 #ifdef _WIN32
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#include "windows_overhead.h"
 #pragma comment(lib, "Ws2_32.lib")
 #endif
 
@@ -21,18 +22,10 @@
 using namespace std;
 
 namespace cppsock{
-    #ifdef _WIN32
-    inline WSADATA wsaData;
-    inline bool WSAStarted = false;
-    inline int WSAnumInstances = 0;
-    void WSAManage();
-    #endif
-
     class TCPClient {
         private:
             #ifdef __linux__
             int sock;
-
             #endif
             #ifdef _WIN32
             SOCKET sock = INVALID_SOCKET;
